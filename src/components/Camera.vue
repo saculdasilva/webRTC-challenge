@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h1>fuze challenge</h1>
+    <h1 style="text-align: center; margin: 5rem 5rem">{{ message }}</h1>
     <canvas ref="audio1" width="150" height="300"></canvas>
-    <video ref="video1" autoplay width="600" />
+    <video style="box-shadow: 2px 2px 10px #eee" ref="video1" autoplay width="35%" />
     <canvas ref="audio2" width="150" height="300"></canvas>
-    <video ref="video2" autoplay width="600" />
+    <video style="box-shadow: 2px 2px 10px #eee" ref="video2" autoplay width="35%" />
   </div>
 </template>
 
@@ -12,7 +12,7 @@
 export default {
   name: "Camera",
   data: () => ({
-    browser: {}
+    message: 'fuze challenge'
   }),
   mounted() {
     navigator.getUserMedia =
@@ -94,12 +94,7 @@ body {
   font-family: "Arial", sans-serif;
 }
 
-#audio1 {
-  width: 150px;
-  height: 300px;
-  position: absolute;
-  top: 150px;
-  left: 45%;
-  text-align: center;
+canvas {
+  margin: 2rem 0rem 0rem 2rem;
 }
 </style>
