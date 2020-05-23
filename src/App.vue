@@ -1,15 +1,15 @@
 <template>
   <div>
-    <camera />
+    <web />
   </div>
 </template>
 
 <script>
-import Camera from "@/components/Camera.vue";
+import Web from "@/components/Web.vue";
 export default {
   name: "Home",
   components: {
-    camera: Camera
+    web: Web
   }
 };
 </script>
