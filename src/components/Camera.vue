@@ -12,7 +12,8 @@
 export default {
   name: "Camera",
   data: () => ({
-    message: 'fuze challenge'
+    message: 'fuze challenge',
+    health: 100
   }),
   mounted() {
     navigator.getUserMedia =
@@ -23,8 +24,7 @@ export default {
       let me = this
       navigator.getUserMedia(
         {
-          audio: true,
-          video: true
+          audio: true
         },
         function(stream) {
           const video1 = me.$refs.video1;
@@ -57,28 +57,33 @@ export default {
             }
 
             var average = values / length; 
-
+            var damage = average
+            if (me.health > 0){
+              me.health = me.health - damage / 20
+            } else {
+              me.health = 0
+            }
             canvasContext1.clearRect(0, 0, 150, 300);
             canvasContext1.fillStyle = "#BadA55";
-            canvasContext1.fillRect(0, 300 - average, 150, 300);
+            canvasContext1.fillRect(0, 100 - me.health, 150, 300);
             canvasContext1.fillStyle = "#262626";
             canvasContext1.font = "48px impact";
-            canvasContext1.fillText(Math.round(average - 40), -2, 300);
+            canvasContext1.fillText(Math.round(me.health), 0, 300);
 
             canvasContext2.clearRect(0, 0, 150, 300);
             canvasContext2.fillStyle = "#BadA55";
-            canvasContext2.fillRect(0, 300 - average, 150, 300);
+            canvasContext2.fillRect(0, 100 - me.health, 150, 300);
             canvasContext2.fillStyle = "#262626";
             canvasContext2.font = "48px impact";
-            canvasContext2.fillText(Math.round(average - 40), -2, 300);
+            canvasContext2.fillText(Math.round(me.health), 0, 300);
           };
         },
         function(err) {
-          console.log("The following error occured: " + err.name);
+          this.message = "The following error occured: " + err.name
         }
       );
     } else {
-      console.log("getUserMedia not supported, please use Firefox or IE Edge - Chrome requires HTTPS");
+      this.message = "getUserMedia not supported, please use Firefox or IE Edge - Chrome requires HTTPS"
     }
   }
 };
