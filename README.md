@@ -1,4 +1,4 @@
-# fuze-challenge
+# webRTC-challenge
 
 ## Project setup
 ```
