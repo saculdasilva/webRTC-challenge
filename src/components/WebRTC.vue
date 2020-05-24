@@ -39,24 +39,31 @@ export default {
   name: "Web",
   data: () => ({
     localStream: "",
+    //remoteStream: "", this will have the remote peer stream
+    // pc = peer connection ( there should be only 1 in the end )
     pc1: "",
     pc2: "",
     startTime: "",
+    // this doesn't seem to be required
     offerOptions: {
       offerToReceiveAudio: 1,
       offerToReceiveVideo: 1
     },
+    // the healthbar variable
     health: 200
   }),
   methods: {
+    // only needed for local
     getName(pc) {
       return pc === this.pc1 ? "pc1" : "pc2";
     },
 
+    // only needed for local
     getOtherPc(pc) {
       return pc === this.pc1 ? this.pc2 : this.pc1;
     },
 
+    // the healthbar damaged by sound - the "stream" should be the remote stream, not the local one.
     healthBar(stream) {
       let me = this;
       let audioContext = new AudioContext();
@@ -96,6 +103,7 @@ export default {
       };
     },
 
+    // starts the local video and sound, also brings up the healthbar
     async start() {
       console.log("Requesting local stream");
       this.$refs.startButton.disabled = true;
@@ -114,6 +122,7 @@ export default {
       }
     },
 
+    // makes the peer connection trough a google stun server
     async call() {
       this.$refs.callButton.disabled = true;
       this.$refs.hangupButton.disabled = false;
@@ -161,10 +170,12 @@ export default {
         .then(this.onCreateOfferSuccess, this.onCreateSessionDescriptionError);
     },
 
+    // error catch
     onCreateSessionDescriptionError(error) {
       console.log(`Failed to create session description: ${error.toString()}`);
     },
 
+    // sets local and remote description, creates an answer - should be from the other peer
     async onCreateOfferSuccess(desc) {
       console.log("Offer from pc1\n" + desc.sdp);
       console.log("pc1 setLocalDescription start");
@@ -204,6 +215,7 @@ export default {
       console.log(`Failed to set session description: ${error.toString()}`);
     },
 
+    // binding the second video element to the "remote" stream. "e" should be the stream sent by the remote peer.
     gotRemoteStream(e) {
       this.$refs.remoteVideo.srcObject = e.stream;
       console.log("pc2 received remote stream");
@@ -227,6 +239,7 @@ export default {
       }
     },
 
+    // ICE candidate stuff
     async onIceCandidate(pc, event) {
       try {
         await this.getOtherPc(pc).addIceCandidate(event.candidate);
@@ -251,6 +264,7 @@ export default {
       );
     },
 
+    // util for checking what's up with the ICE stuff
     onIceStateChange(pc, event) {
       if (pc) {
         console.log(`${this.getName(pc)} ICE state: ${pc.iceConnectionState}`);
@@ -258,6 +272,7 @@ export default {
       }
     },
 
+    // shutdown the call
     hangup() {
       console.log("Ending call");
       this.pc1.close();
