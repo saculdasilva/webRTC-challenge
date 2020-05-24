@@ -1,15 +1,15 @@
 <template>
   <div>
-    <web />
+    <webrtc />
   </div>
 </template>
 
 <script>
-import Web from "@/components/Web.vue";
+import WebRTC from "@/components/WebRTC.vue";
 export default {
   name: "Home",
   components: {
-    web: Web
+    webrtc: WebRTC
   }
 };
 </script>

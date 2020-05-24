@@ -4,8 +4,20 @@
       <span>Fuze Challenge</span>
     </h1>
 
-    <video ref="localVideo" playsinline autoplay muted></video>
-    <video ref="remoteVideo" playsinline autoplay></video>
+    <video
+      style="box-shadow: 2px 2px 10px #eee; max-height: 350px"
+      ref="localVideo"
+      autoplay
+      width="35%"
+    />
+    <canvas ref="audio1" width="150" height="300"></canvas>
+    <video
+      style="box-shadow: 2px 2px 10px #eee; max-height: 350px"
+      ref="remoteVideo"
+      autoplay
+      width="35%"
+    />
+    <canvas ref="audio2" width="150" height="300"></canvas>
 
     <div>
       <button ref="startButton" @click.prevent="start">Start</button>
@@ -33,7 +45,8 @@ export default {
     offerOptions: {
       offerToReceiveAudio: 1,
       offerToReceiveVideo: 1
-    }
+    },
+    health: 200
   }),
   methods: {
     getName(pc) {
@@ -42,6 +55,45 @@ export default {
 
     getOtherPc(pc) {
       return pc === this.pc1 ? this.pc2 : this.pc1;
+    },
+
+    healthBar(stream) {
+      let me = this;
+      let audioContext = new AudioContext();
+      let analyser = audioContext.createAnalyser();
+      let microphone = audioContext.createMediaStreamSource(stream);
+      let javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+      analyser.smoothingTimeConstant = 0.8;
+      analyser.fftSize = 1024;
+
+      microphone.connect(analyser);
+      analyser.connect(javascriptNode);
+      javascriptNode.connect(audioContext.destination);
+
+      const canvasContext1 = me.$refs.audio1.getContext("2d");
+
+      javascriptNode.onaudioprocess = function() {
+        var array = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(array);
+        var values = 0;
+
+        var length = array.length;
+        for (var i = 0; i < length; i++) {
+          values += array[i];
+        }
+
+        var damage = values / length;
+        if (me.health > 0 && damage > 80) {
+          me.health = me.health - damage / 100;
+        }
+        canvasContext1.clearRect(0, 0, 150, 300);
+        canvasContext1.fillStyle = "#BadA55";
+        canvasContext1.fillRect(0, 200 - me.health, 150, 300);
+        canvasContext1.fillStyle = "#262626";
+        canvasContext1.font = "36px arial";
+        canvasContext1.fillText(Math.round(me.health), 0, 300);
+      };
     },
 
     async start() {
@@ -55,6 +107,7 @@ export default {
         console.log("Received local stream");
         this.$refs.localVideo.srcObject = stream;
         this.localStream = stream;
+        this.healthBar(this.localStream);
         this.$refs.callButton.disabled = false;
       } catch (e) {
         alert(`getUserMedia() error: ${e.name}`);
@@ -73,7 +126,13 @@ export default {
       if (audioTracks.length > 0) {
         console.log(`Using audio device: ${audioTracks[0].label}`);
       }
-      var servers = null;
+      var servers = {
+        iceServers: [
+          {
+            url: "stun:stun.l.google.com:19302"
+          }
+        ]
+      };
       this.pc1 = new RTCPeerConnection(servers);
       console.log("Created local peer connection object pc1");
       this.pc1.addEventListener("icecandidate", e =>
@@ -90,6 +149,7 @@ export default {
       this.pc2.addEventListener("iceconnectionstatechange", e =>
         this.onIceStateChange(this.pc2, e)
       );
+
       this.pc2.onaddstream = this.gotRemoteStream;
 
       this.pc1.addStream(this.localStream);
