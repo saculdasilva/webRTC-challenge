@@ -14,10 +14,14 @@ I divided the challenge in major steps:
 
 4 - I believe this is working already, altough the other user
 is me.
+
 5 - I'm looking for solutions for this, so far socket.io sounds
 like a good idea, but also heard about SIP ?
+
 6 - I'm still in the void on this one
+
 7 - sounds straightforward
+
 8 - sounds straightforward
 
 In regards to the healthbar, currently it's being "damaged" by
