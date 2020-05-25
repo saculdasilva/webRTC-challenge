@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import WebRTC from "@/components/WebRTC.vue";
+import WebRTC from "@/components/sandbox.vue";
 export default {
   name: "Home",
   components: {
