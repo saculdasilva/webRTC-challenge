@@ -7,24 +7,12 @@ I divided the challenge in major steps:
 3. make a healthbar that reacts to sound from webRTC media - done
 4. create a peerconnection - done
 5. get access to SDP (console.log) - done
-6. connect to another peer trough the STUN server - in progress
-7. send SDP over the STUN server to the other peer - in progress
-8. connect trough the SDP somehow - to do
-9. send local media - to do
-10. receive the remote peer local media - done?
-11. sucess ! - to do
+6. send the SDP to another peer trough the socket server - in progress
+7. send local media - to do
+8. receive the remote peer local media - done?
+9. sucess ! - to do
 
-6 - I believe this is working already, altough the other peer
-is me.
-
-7 - I'm looking for solutions for this, so far socket.io sounds
-like a good idea, but also heard about SIP ?
-
-8 - I'm still in the void on this one
-
-9 - sounds straightforward
-
-10 - sounds straightforward
+6 - Using socket.io and express
 
 In regards to the healthbar, currently it's being "damaged" by
 the local sound, but as soon as I retrieve the remote media
