@@ -21,4 +21,18 @@ if (credentials.key && credentials.cert) {
 
 const io = require('socket.io')(server);
 
+io.on('connection', function(socket) {
+    console.log(socket.id + ' had connected')
+
+    socket.on('message', data => {
+        data = JSON.parse(data)
+        console.log(data)
+    });
+
+    socket.on('disconnect', () => {
+        console.log(socket.id + ' has been disconnected')
+    })
+});
+
+
 server.listen(port, () => console.log(`Server is running on port ${port}`));

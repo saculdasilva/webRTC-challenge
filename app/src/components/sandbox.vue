@@ -18,10 +18,6 @@ export default {
     pc: ""
   }),
   mounted() {
-    this.$socket.on('offer', (data) => {
-      console.log(data);
-    });
-    this.$socket.emit('offer', 'sdp')
     this.start();
   },
   methods: {
@@ -41,7 +37,7 @@ export default {
             .createOffer()
             .then(sdp => me.pc.setLocalDescription(sdp))
             .then(function() {
-              console.log(me.pc.localDescription.sdp);
+              this.$socket.emit('message', me.pc.localDescription.sdp)
             });
         });
     }
