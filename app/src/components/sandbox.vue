@@ -5,6 +5,7 @@
       style="box-shadow: 2px 2px 10px #eee; max-height: 350px"
       ref="localVideo"
       autoplay
+      muted
       width="35%"
     />
     <video
@@ -29,19 +30,19 @@ export default {
       console.log("socket connected");
     },
     offer(data) {
-      const pc = new RTCPeerConnection(this.servers);
       const me = this;
-      pc.setRemoteDescription(data)
-        .then(() => pc.createAnswer())
-        .then(sdp => pc.setLocalDescription(sdp))
+      this.peer = "";
+      this.peer = new RTCPeerConnection(this.servers);
+      navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(stream) { me.$refs.localVideo.srcObject = stream; me.peer.addStream(stream); });
+      this.peer.setRemoteDescription(data)
+        .then(() => me.peer.createAnswer())
+        .then(sdp => me.peer.setLocalDescription(sdp))
         .then(function() {
-          console.log("offer pc:", pc);
-          console.log("peer :", me.peer);
           me.$socket.client.emit("answer", me.peer.localDescription);
         });
-      pc.onaddstream = remoteStream =>
+      this.peer.onaddstream = remoteStream =>
         this.gotRemoteStream(remoteStream.stream);
-      pc.onicecandidate = function(event) {
+      this.peer.onicecandidate = function(event) {
         if (event.candidate) {
           me.$socket.client.emit("candidate", event.candidate);
         }
@@ -54,12 +55,9 @@ export default {
     },
     answer(data) {
       const me = this;
-      console.log("answer: ", data);
       this.peer.setRemoteDescription(data);
       this.peer.onaddstream = function(event) {
-        console.log("there is stream", event.stream);
         me.$refs.remoteVideo.srcObject = event.stream;
-        console.log(me.$refs.remoteVideo.srcObject);
       };
       this.peer.onicecandidate = function(event) {
         if (event.candidate) {
@@ -68,12 +66,9 @@ export default {
       };
     },
     candidate(candidate) {
-      console.log("candidate:", candidate);
-      console.log(this.peer);
       this.peer
         .addIceCandidate(new RTCIceCandidate(candidate))
         .catch(e => console.error(e));
-      console.log("peer candidates: ", this.peer);
     }
   },
   mounted() {
