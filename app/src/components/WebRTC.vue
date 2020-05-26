@@ -39,7 +39,7 @@ export default {
   name: "Web",
   data: () => ({
     localStream: "",
-    //remoteStream: "", this will have the remote peer stream
+    // remoteStream: "", this will have the remote peer stream
     // pc = peer connection ( there should be only 1 in the end )
     pc1: "",
     pc2: "",
@@ -216,9 +216,8 @@ export default {
     },
 
     // binding the second video element to the "remote" stream. "e" should be the stream sent by the remote peer.
-    gotRemoteStream(e) {
-      this.$refs.remoteVideo.srcObject = e.stream;
-      console.log("pc2 received remote stream");
+    gotRemoteStream(remoteStream) {
+      this.$refs.remoteVideo.srcObject = remoteStream.stream;
     },
 
     onCreateAnswerSuccess(desc) {

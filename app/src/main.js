@@ -1,20 +1,12 @@
 import Vue from "vue";
 import store from "./store";
 import App from "./App.vue";
-import VueSocketIO from "vue-socket.io";
-//import SocketIO from "socket.io-client"
+import VueSocketIOExt from "vue-socket.io-extended";
+import io from "socket.io-client";
 
-Vue.use(
-  new VueSocketIO({
-    debug: true,
-    connection: "localhost:3000",
-    vuex: {
-      store,
-      actionPrefix: "SOCKET_",
-      mutationPrefix: "SOCKET_"
-    }
-  })
-);
+const socket = io("192.168.1.5:3000");
+
+Vue.use(VueSocketIOExt, socket);
 
 Vue.config.productionTip = false;
 
