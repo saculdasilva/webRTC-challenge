@@ -33,8 +33,14 @@ export default {
       const me = this;
       this.peer = "";
       this.peer = new RTCPeerConnection(this.servers);
-      navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(stream) { me.$refs.localVideo.srcObject = stream; me.peer.addStream(stream); });
-      this.peer.setRemoteDescription(data)
+      navigator.mediaDevices
+        .getUserMedia({ audio: true, video: true })
+        .then(function(stream) {
+          me.$refs.localVideo.srcObject = stream;
+          me.peer.addStream(stream);
+        });
+      this.peer
+        .setRemoteDescription(data)
         .then(() => me.peer.createAnswer())
         .then(sdp => me.peer.setLocalDescription(sdp))
         .then(function() {
