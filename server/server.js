@@ -24,12 +24,18 @@ const io = require('socket.io')(server);
 io.on('connection', socket => {
     console.log(`A user connected with socket id ${socket.id}`)
 
-    socket.on('message', data => {
+
+    //this is not ideal, everything is being broadcasted, should use ids.
+    socket.on('offer', data => {
         socket.broadcast.emit('offer', data)
     });
 
     socket.on('answer', data => {
         socket.broadcast.emit('answer', data);
+    });
+
+    socket.on('candidate', data => {
+        socket.broadcast.emit('candidate', data);
     });
     
     socket.on('disconnect', () => {
