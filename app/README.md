@@ -1,5 +1,10 @@
 # webRTC-challenge
 
+#readme
+- this project was built and tested only on local
+- please change the address on main.js (192.168.1.5:3000) to the signaling server address.
+- you might need to use flags on chrome on a second machine for getUserMedia to work. (see parent readme)
+
 #todo:
 ```
 - video filter that reacts to audio
