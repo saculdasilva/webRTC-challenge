@@ -1,23 +1,31 @@
 # webRTC-challenge
 
+#todo:
+```
+- video filter that reacts to audio
+- win/lose
+- improve the buttons behaviour (bugs)
+- make a much better UI with a decent design
+```
+
 I divided the challenge in major steps:
 
 1. Basic Interface - done
 2. get local media - done
 3. make a healthbar that reacts to sound from webRTC media - done
 4. create a peerconnection - done
-5. get access to SDP (console.log) - done
-6. send the SDP to another peer trough the socket server - in progress
-7. send local media - to do
-8. receive the remote peer local media - done?
-9. sucess ! - to do
+5. get access to local SDP (console.log) - done
+6. create a simple socket server
+7. offer the SDP and media to another peer trough the socket server - done
+8. answer the offer with own sdp and media - done
+9. bind the answer to video and healthbar elements
+10. deal with the ice candidates
+11. bind the remote stream into the healthbar and video elements
 
-6 - Using socket.io and express
+Difficulties found:
 
-In regards to the healthbar, currently it's being "damaged" by
-the local sound, but as soon as I retrieve the remote media
-I just need to call the function somewhere else and pass
-the remote stream instead of the local stream to the function.
+ICE is tricky and sometimes hard to debug related problems.
+The back and forth signaling can get overwhelming and hard to keep track.
 
 ## Project setup
 ```
