@@ -1,5 +1,8 @@
 <template>
   <div id="container">
+    <div v-if="health < 0" style="position:absolute; height:98%; width:99%; background:red; font-size:2rem; text-align:center">
+      You Lost!
+    </div>
     <h1>
       <span>Fuze Challenge</span>
     </h1>
@@ -10,14 +13,14 @@
       autoplay
       width="35%"
     />
-    <canvas ref="audio1" width="150" height="300"></canvas>
+    <canvas ref="audio1" id="audio1" width="150" height="300"></canvas>
     <video
       style="box-shadow: 2px 2px 10px #eee; max-height: 350px"
       ref="remoteVideo"
       autoplay
       width="35%"
     />
-    <canvas ref="audio2" width="150" height="300"></canvas>
+    <canvas ref="audio2" id="audio2" width="150" height="300"></canvas>
 
     <div>
       <button ref="startButton" @click.prevent="start">Start</button>
@@ -41,7 +44,8 @@ export default {
     localStream: "",
     peer: "",
     servers: null,
-    health: 200
+    health: 200,
+    remoteHealth: 200,
   }),
   sockets: {
     connect() {
@@ -114,7 +118,45 @@ export default {
   },
   methods: {
     // the healthbar damaged by sound - the "stream" should be the remote stream, not the local one.
-    healthBar(stream) {
+    healthBar1(stream) {
+      let me = this;
+      let audioContext = new AudioContext();
+      let analyser = audioContext.createAnalyser();
+      let microphone = audioContext.createMediaStreamSource(stream);
+      let javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+      analyser.smoothingTimeConstant = 0.8;
+      analyser.fftSize = 1024;
+
+      microphone.connect(analyser);
+      analyser.connect(javascriptNode);
+      javascriptNode.connect(audioContext.destination);
+
+      const canvasContext1 = me.$refs.audio2.getContext("2d");
+
+      javascriptNode.onaudioprocess = function() {
+        var array = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(array);
+        var values = 0;
+
+        var length = array.length;
+        for (var i = 0; i < length; i++) {
+          values += array[i];
+        }
+
+        var damage = values / length;
+        if (me.health > 0 && damage > 50) {
+          me.health = me.health - damage / 50;
+        }
+        canvasContext1.clearRect(0, 0, 150, 300);
+        canvasContext1.fillStyle = "#BadA55";
+        canvasContext1.fillRect(0, 200 - me.health, 150, 300);
+        canvasContext1.fillStyle = "#262626";
+        canvasContext1.font = "36px arial";
+        canvasContext1.fillText(Math.round(me.health), 0, 300);
+      };
+    },
+    healthBar2(stream) {
       let me = this;
       let audioContext = new AudioContext();
       let analyser = audioContext.createAnalyser();
@@ -141,15 +183,15 @@ export default {
         }
 
         var damage = values / length;
-        if (me.health > 0 && damage > 80) {
-          me.health = me.health - damage / 100;
+        if (me.remoteHealth > 0 && damage > 50) {
+          me.remoteHealth = me.remoteHealth - damage / 50;
         }
         canvasContext1.clearRect(0, 0, 150, 300);
         canvasContext1.fillStyle = "#BadA55";
-        canvasContext1.fillRect(0, 200 - me.health, 150, 300);
+        canvasContext1.fillRect(0, 200 - me.remoteHealth, 150, 300);
         canvasContext1.fillStyle = "#262626";
         canvasContext1.font = "36px arial";
-        canvasContext1.fillText(Math.round(me.health), 0, 300);
+        canvasContext1.fillText(Math.round(me.remoteHealth), 0, 300);
       };
     },
 
@@ -169,7 +211,7 @@ export default {
         //binds the stream to the localStream variable
         this.localStream = stream;
 
-        this.healthBar(this.localStream);
+        this.healthBar1(this.localStream);
         this.$refs.callButton.disabled = false;
       } catch (e) {
         alert(`getUserMedia() error: ${e.name}`);
@@ -215,6 +257,7 @@ export default {
     // binding the second video element to the "remote" stream. "remoteStream" should be the stream sent by the remote peer.
     gotRemoteStream(remoteStream) {
       this.$refs.remoteVideo.srcObject = remoteStream.stream;
+      this.healthBar2(remoteStream.stream);
     },
 
     // shutdown the call
