@@ -15,14 +15,14 @@
 
 I divided the challenge in major steps:
 
-1. Basic Interface - done
-2. get local media - done
-3. make a healthbar that reacts to sound from webRTC media - done
-4. create a peerconnection - done
-5. get access to local SDP (console.log) - done
+1. Basic Interface
+2. get local media
+3. make a healthbar that reacts to sound from webRTC media
+4. create a peerconnection
+5. get access to local SDP (console.log)
 6. create a simple socket server
-7. offer the SDP and media to another peer trough the socket server - done
-8. answer the offer with own sdp and media - done
+7. offer the SDP and media to another peer trough the socket server
+8. answer the offer with own sdp and media
 9. bind the answer to video and healthbar elements
 10. deal with the ice candidates
 11. bind the remote stream into the healthbar and video elements
