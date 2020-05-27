@@ -48,6 +48,8 @@ export default {
       console.log("socket connected");
     },
     offer(data) {
+      console.log('---- offer triggered ----')
+
       //little cheat, I should really study arrow functions
       const me = this;
 
@@ -65,19 +67,21 @@ export default {
           me.peer.addStream(stream);
         });
 
+      //watches if a stream was added and sets the second video srcObject as the found stream
+      this.peer.onaddstream = this.gotRemoteStream;
+
       //sets the remote description of the local peer with the local description of the remote peer - that was sent trough the signaling server
       this.peer
         .setRemoteDescription(data)
         .then(() => me.peer.createAnswer()) //creates answer
         .then(sdp => me.peer.setLocalDescription(sdp)) // sets up the local description to send back
         .then(function() {
+          console.log('remote peer: ', me.peer)
           me.$socket.client.emit("answer", me.peer.localDescription); // replies back with the local description trough the signaling server
         });
-      this.peer.onaddstream = (
-        remoteStream //watches for new streams
-      ) => this.gotRemoteStream(remoteStream.stream); //binds found stream to the second video element
+
+      // watches ICE and adds sends found candidates to the signaling server
       this.peer.onicecandidate = function(event) {
-        // watches ICE and adds sends found candidates to the signaling server
         if (event.candidate) {
           me.$socket.client.emit("candidate", event.candidate);
         }
@@ -87,9 +91,7 @@ export default {
     answer(data) {
       const me = this;
       this.peer.setRemoteDescription(data);
-      this.peer.onaddstream = function(event) {
-        me.$refs.remoteVideo.srcObject = event.stream;
-      };
+
       this.peer.onicecandidate = function(event) {
         if (event.candidate) {
           me.$socket.client.emit("candidate", event.candidate);
@@ -98,10 +100,16 @@ export default {
     },
 
     //add found candidates to the peerconnection
-    candidate(candidate) {
-      this.peer
-        .addIceCandidate(new RTCIceCandidate(candidate))
-        .catch(e => console.error(e));
+    candidate(candidate, id) {
+        if (this.peer.setRemoteDescription) {
+          console.log('got a remote ice candidate: ', candidate)
+          console.log('from : ', id)
+          this.peer
+            .addIceCandidate(new RTCIceCandidate(candidate))
+            .catch(e => console.error(e));
+        } else {
+          console.log('BOOOOOOOOOOOOOOOOOOOOOM - remoteDescription is not set', this.peer)
+        }
     }
   },
   methods: {
@@ -177,12 +185,14 @@ export default {
       //sets up local peer connection
       this.peer = new RTCPeerConnection(this.servers);
 
-      // watches ICE and adds sends found candidates to the signaling server
-      this.peer.onicecandidate = function(event) {
-        if (event.candidate) {
-          me.$socket.client.emit("candidate", event.candidate);
-        }
-      };
+      // explodes because remoteDescription is not set
+      // this.peer.onicecandidate = function(event) {
+      //   if (event.candidate) {
+      //     console.log('got a local candidate', event.candidate);
+      //     me.$socket.client.emit("candidate", event.candidate);
+      //   }
+      // };
+      
 
       //watches if a stream was added and sets the second video srcObject as the found stream
       this.peer.onaddstream = this.gotRemoteStream;
@@ -196,13 +206,10 @@ export default {
         .then(sdp => this.peer.setLocalDescription(sdp))
         .then(function() {
           console.log('emitting offer: ', me.peer.localDescription)
+          console.log('peer on call: ', me.peer)
           me.$socket.client.emit("offer", me.peer.localDescription);
+          console.log('---------------------- End of call function ---------------------------')
         });
-    },
-
-    // error catch
-    onCreateSessionDescriptionError(error) {
-      console.log(`Failed to create session description: ${error.toString()}`);
     },
 
     // binding the second video element to the "remote" stream. "remoteStream" should be the stream sent by the remote peer.

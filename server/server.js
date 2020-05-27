@@ -35,7 +35,8 @@ io.on('connection', socket => {
     });
 
     socket.on('candidate', data => {
-        socket.broadcast.emit('candidate', data);
+        console.log('received candidate: ', data)
+        socket.broadcast.emit('candidate', data, socket.id);
     });
     
     socket.on('disconnect', () => {
